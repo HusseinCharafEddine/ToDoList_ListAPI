@@ -6,6 +6,10 @@ using ToDoList_ListAPI.Data;
 using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Repository.IRepository;
+using Azure.Core;
+using Microsoft.AspNetCore.Identity;
+using System.Net.Mail;
+using System.Net;
 
 namespace ToDoList_ListAPI.Repository
 {
@@ -76,11 +80,73 @@ namespace ToDoList_ListAPI.Repository
                 Password = registrationRequestDTO.Password,
                 Name = registrationRequestDTO.Name,
                 Role = registrationRequestDTO.Role,
+                Email = registrationRequestDTO.Email,
             };
             _db.LocalUsers.Add(user);
             await _db.SaveChangesAsync();
             user.Password = "";
             return user;
         }
+        public async Task<ForgotPasswordResponseDTO> ForgotPassword (ForgotPasswordRequestDTO forgotPasswordRequestDTO)
+        {
+            var user = _db.LocalUsers.FirstOrDefault(u => u.Email.ToLower() == forgotPasswordRequestDTO.Email.ToLower());
+            if (user == null)
+            {
+                return new ForgotPasswordResponseDTO()
+                {
+                    User = null,
+                    Email = ""
+                }; ;
+            }
+            var resetToken = GenerateResetToken();
+
+            user.ResetToken = resetToken;
+            user.ResetTokenExpiration = DateTime.UtcNow.AddHours(1); 
+
+            await _db.SaveChangesAsync();
+
+            await SendResetEmail(user.Email, user.UserName, resetToken);
+            String newPassword = "test1234";
+            user.Password = newPassword;
+            await _db.SaveChangesAsync();
+            return new ForgotPasswordResponseDTO()
+            {
+                User = user,
+                Email = user.Email 
+            };
+
+
+        }
+        private async Task SendResetEmail(string userEmail, string userName, string resetToken)
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
+                SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
+
+                mail.From = new MailAddress("hu.sharafeddine@gmail.com"); 
+                mail.To.Add(userEmail);
+                mail.Subject = "Password Reset";
+                mail.Body = $"Click the following link to reset your password: www.facebook.com/{resetToken}";
+
+                smtpServer.Port = 587;
+                smtpServer.Credentials = new NetworkCredential("hu.sharafeddine@gmail.com", "zyly odfu yoas bhqc");
+                smtpServer.EnableSsl = true;
+
+                await smtpServer.SendMailAsync(mail);
+                Console.WriteLine("Password reset email sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
+
+        }
+
+        private string GenerateResetToken()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
     }
 }

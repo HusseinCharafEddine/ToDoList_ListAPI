@@ -3,6 +3,7 @@ using System.Net;
 using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Repository.IRepository;
+using Azure;
 
 namespace ToDoList_ListAPI.Controllers
 {
@@ -58,5 +59,23 @@ namespace ToDoList_ListAPI.Controllers
             _response.IsSuccess = true;
             return Ok(_response);
         }
+
+        [HttpPost("forgotPassword")]
+
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDTO model)
+        {
+            var forgetPasswordResponse = await _userRepo.ForgotPassword(model);
+            if (forgetPasswordResponse.User == null || forgetPasswordResponse.Email == "")
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Email does not exist");
+                return BadRequest(_response);
+            }
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            return Ok(_response);
+        }
+
     }
 }
