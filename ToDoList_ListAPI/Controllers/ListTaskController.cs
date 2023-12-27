@@ -22,10 +22,11 @@ namespace ToDoList_ListAPI.Controllers
             _mapper = mapper;
             _response = new();
         }
+
+        
         [HttpGet]
+        [AllowAnonymous]
         [ResponseCache(CacheProfileName = "Default30")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
             , int pageSize = 0, int pageNumber = 1)
@@ -56,14 +57,14 @@ namespace ToDoList_ListAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             return _response;
         }
 
         [HttpGet("{id:int}", Name = "GetListTask")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,6 +90,7 @@ namespace ToDoList_ListAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             return _response;
@@ -96,6 +98,8 @@ namespace ToDoList_ListAPI.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -122,6 +126,7 @@ namespace ToDoList_ListAPI.Controllers
             } catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             return _response;
@@ -155,6 +160,7 @@ namespace ToDoList_ListAPI.Controllers
             } catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             return _response;
@@ -163,6 +169,8 @@ namespace ToDoList_ListAPI.Controllers
         [Authorize(Roles = "admin")]
         [HttpPut("{id:int}", Name = "UpdateVillaApi")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> UpdateVilla(int id, [FromBody] ListTaskUpdateDTO updateDTO)
         {
@@ -181,6 +189,7 @@ namespace ToDoList_ListAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             return _response;

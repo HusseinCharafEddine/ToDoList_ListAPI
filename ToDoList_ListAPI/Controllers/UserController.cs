@@ -4,6 +4,7 @@ using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Repository.IRepository;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ToDoList_ListAPI.Controllers
 {
@@ -19,8 +20,19 @@ namespace ToDoList_ListAPI.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(APIResponse), (int)HttpStatusCode.BadRequest)] 
+        [ProducesResponseType(typeof(LoginResponseDTO), (int)HttpStatusCode.OK)] 
+        [AllowAnonymous]
+
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
+            if (model.UserName == null || model.Password == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Please fill in username and password");
+                return BadRequest(_response);
+            }
             var loginResponse = await _userRepo.Login(model);
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
             {
@@ -36,8 +48,18 @@ namespace ToDoList_ListAPI.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(APIResponse), (int)HttpStatusCode.BadRequest)] 
+        [ProducesResponseType(typeof(LocalUser), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO model)
         {
+            if (model.UserName == null || model.Password == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Please fill in username and password");
+                return BadRequest(_response);
+            }
             bool ifUserNameUnique = _userRepo.IsUniqueUser(model.UserName);
             if (!ifUserNameUnique)
             {
@@ -61,9 +83,19 @@ namespace ToDoList_ListAPI.Controllers
         }
 
         [HttpPost("forgotPassword")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(APIResponse), (int)HttpStatusCode.BadRequest)] 
+        [ProducesResponseType(typeof(LocalUser), (int)HttpStatusCode.OK)]
 
         public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDTO model)
         {
+            if (model.Email == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Please fill in email");
+                return BadRequest(_response);
+            }
             var forgetPasswordResponse = await _userRepo.ForgotPassword(model);
             if (forgetPasswordResponse.User == null || forgetPasswordResponse.Email == "")
             {

@@ -12,171 +12,176 @@ using Microsoft.Extensions.DependencyInjection;
 using ToDoList_ListAPI.Data;
 using System.Data;
 
-[TestFixture]
-public class UserControllerTests
+namespace ToDoList_ListTest
 {
-    private UserController _userController;
-    private Mock<IUserRepository> _userRepoMock;
-    private DataFactory _DataFactory;
-    private ApplicationDbContext _dbContext;
 
-    [SetUp]
-    public void Setup()
+
+    [TestFixture]
+    public class UserControllerTests
     {
-        // Set up an in-memory DbContext
-        var serviceProvider = new ServiceCollection()
-            .AddEntityFrameworkInMemoryDatabase()
-            .BuildServiceProvider();
+        private UserController _userController;
+        private Mock<IUserRepository> _userRepoMock;
+        private DataFactory _DataFactory;
+        private ApplicationDbContext _dbContext;
 
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("TestDatabase")
-            .UseInternalServiceProvider(serviceProvider)
-            .Options;
-
-        _dbContext = new ApplicationDbContext(options);
-
-        _userRepoMock = new Mock<IUserRepository>();
-        _DataFactory = new DataFactory(_dbContext); // Pass the in-memory DbContext to the TestDataFactory
-        _userController = new UserController(_userRepoMock.Object);
-    }
-
-    [Test]
-    [TestCase("husseinsh", "test1234", "admin" , "Hussein Sharaf Eddine" , "hu.sharafeddine@gmail.com" ,HttpStatusCode.OK, true)]
-    
-    public async Task Login_ValidCredentials_ValidToken(string username, string password, string role, string name , string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
-    {
-        // Arrange
-        var loginRequest = new LoginRequestDTO
+        [SetUp]
+        public void Setup()
         {
-            UserName = username,
-            Password = password
-        };
+            // Set up an in-memory DbContext
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
 
-        var testUser = _DataFactory.CreateTestUser(username, password, role, name , email);
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase("TestDatabase")
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
 
-        var loginResponse = new LoginResponseDTO
+            _dbContext = new ApplicationDbContext(options);
+
+            _userRepoMock = new Mock<IUserRepository>();
+            _DataFactory = new DataFactory(_dbContext);
+            _userController = new UserController(_userRepoMock.Object);
+        }
+
+        [Test]
+        [TestCase("husseinsh", "test1234", "admin", "Hussein Sharaf Eddine", "hu.sharafeddine@gmail.com", HttpStatusCode.OK, true)]
+
+        public async Task Login_ValidCredentials_ValidToken(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
         {
-            Token = "validToken",
-            User = testUser
-        };
+            // Arrange
+            var loginRequest = new LoginRequestDTO
+            {
+                UserName = username,
+                Password = password
+            };
 
-        _userRepoMock.Setup(repo => repo.Login(loginRequest)).ReturnsAsync(loginResponse);
-        
-        // Act
-        var result = await _userController.Login(loginRequest) as ObjectResult;
+            var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
-        Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
-    }
-    [TestCase("husseinsh", "test1234", "admin", "Hussein Sharaf Eddine", "hu.sharafeddine@gmail.com", HttpStatusCode.BadRequest, false)]
-    public async Task Login_ValidCredentials_InvalidToken(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
-    {
-        // Arrange
-        var loginRequest = new LoginRequestDTO
+            var loginResponse = new LoginResponseDTO
+            {
+                Token = "validToken",
+                User = testUser
+            };
+
+            _userRepoMock.Setup(repo => repo.Login(loginRequest)).ReturnsAsync(loginResponse);
+
+            // Act
+            var result = await _userController.Login(loginRequest) as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
+            Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
+        }
+        [TestCase("husseinsh", "test1234", "admin", "Hussein Sharaf Eddine", "hu.sharafeddine@gmail.com", HttpStatusCode.BadRequest, false)]
+        public async Task Login_ValidCredentials_InvalidToken(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
         {
-            UserName = username,
-            Password = password
-        };
+            // Arrange
+            var loginRequest = new LoginRequestDTO
+            {
+                UserName = username,
+                Password = password
+            };
 
-        var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
+            var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
 
-        var loginResponse = new LoginResponseDTO
+            var loginResponse = new LoginResponseDTO
+            {
+                Token = "",
+                User = testUser
+            };
+
+            _userRepoMock.Setup(repo => repo.Login(loginRequest)).ReturnsAsync(loginResponse);
+
+            // Act
+            var result = await _userController.Login(loginRequest) as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
+            Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
+        }
+        [Test]
+        [TestCase("newuser", "password", HttpStatusCode.OK, true, true)]
+        [TestCase("existinguser", "password", HttpStatusCode.BadRequest, false, false)]
+        public async Task Register_UniqueUsername_ReturnsExpectedResult(string username, string password, HttpStatusCode expectedStatusCode, bool expectedIsSuccess, bool isUserNameUnique)
         {
-            Token = "",
-            User = testUser
-        };
+            var registrationRequest = new RegistrationRequestDTO
+            {
+                UserName = username,
+                Password = password
+            };
 
-        _userRepoMock.Setup(repo => repo.Login(loginRequest)).ReturnsAsync(loginResponse);
+            _userRepoMock.Setup(repo => repo.IsUniqueUser(registrationRequest.UserName)).Returns(isUserNameUnique);
+            _userRepoMock.Setup(repo => repo.Register(registrationRequest)).ReturnsAsync(new LocalUser { /* user details */ });
 
-        // Act
-        var result = await _userController.Login(loginRequest) as ObjectResult;
+            var result = await _userController.Register(registrationRequest) as ObjectResult;
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
-        Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
-    }
-    [Test]
-    [TestCase("newuser", "password", HttpStatusCode.OK, true, true)]
-    [TestCase("existinguser", "password", HttpStatusCode.BadRequest, false, false)]
-    public async Task Register_UniqueUsername_ReturnsExpectedResult(string username, string password, HttpStatusCode expectedStatusCode, bool expectedIsSuccess, bool isUserNameUnique)
-    {
-        var registrationRequest = new RegistrationRequestDTO
+            // Assert
+            Assert.NotNull(result);
+            Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
+            Assert.That((bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value), Is.EqualTo(expectedIsSuccess));
+        }
+
+        [Test]
+        [TestCase("husseinsh", "test1234", "admin", "Hussein Sharaf Eddine", "hu.sharafeddine@gmail.com", HttpStatusCode.OK, true)]
+        public async Task ForgotPassword_ExistingEmail(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
         {
-            UserName = username,
-            Password = password
-        };
+            // Arrange
+            var forgotPasswordRequest = new ForgotPasswordRequestDTO
+            {
+                Email = email
+            };
+            var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
 
-        _userRepoMock.Setup(repo => repo.IsUniqueUser(registrationRequest.UserName)).Returns(isUserNameUnique);
-        _userRepoMock.Setup(repo => repo.Register(registrationRequest)).ReturnsAsync(new LocalUser { /* user details */ });
+            var forgotPasswordResponse = new ForgotPasswordResponseDTO
+            {
+                User = testUser,
+                Email = email
+            };
 
-        var result = await _userController.Register(registrationRequest) as ObjectResult;
+            _userRepoMock.Setup(repo => repo.ForgotPassword(forgotPasswordRequest)).ReturnsAsync(forgotPasswordResponse);
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
-        Assert.That((bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value), Is.EqualTo(expectedIsSuccess));
-    }
+            // Act
+            var result = await _userController.ForgotPassword(forgotPasswordRequest) as ObjectResult;
 
-    [Test]
-    [TestCase("husseinsh", "test1234", "admin" , "Hussein Sharaf Eddine" , "hu.sharafeddine@gmail.com" ,HttpStatusCode.OK, true)]
-    public async Task ForgotPassword_ExistingEmail(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
-    {
-        // Arrange
-        var forgotPasswordRequest = new ForgotPasswordRequestDTO
+            // Assert
+            Assert.NotNull(result);
+            Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
+            Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
+        }
+        [TestCase("husseinsh234234234", "test122434234", "user", "Hussein Sharaf Edsdfsdine", "hu.sfasdfasdf@gmail.com", HttpStatusCode.BadRequest, false)]
+        public async Task ForgotPassword_NonExistingEmail(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
         {
-            Email = email
-        };
-        var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
+            // Arrange
+            var forgotPasswordRequest = new ForgotPasswordRequestDTO
+            {
+                Email = email
+            };
+            var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
 
-        var forgotPasswordResponse = new ForgotPasswordResponseDTO
+            var forgotPasswordResponse = new ForgotPasswordResponseDTO
+            {
+                User = null,
+                Email = email
+            };
+
+            _userRepoMock.Setup(repo => repo.ForgotPassword(forgotPasswordRequest)).ReturnsAsync(forgotPasswordResponse);
+
+            // Act
+            var result = await _userController.ForgotPassword(forgotPasswordRequest) as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
+            Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
+        }
+
+        [TearDown]
+        public void TearDown()
         {
-            User = testUser,
-            Email = email
-        };
-
-        _userRepoMock.Setup(repo => repo.ForgotPassword(forgotPasswordRequest)).ReturnsAsync(forgotPasswordResponse);
-
-        // Act
-        var result = await _userController.ForgotPassword(forgotPasswordRequest) as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
-        Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
-    }
-    [TestCase("husseinsh234234234", "test122434234", "user", "Hussein Sharaf Edsdfsdine", "hu.sfasdfasdf@gmail.com", HttpStatusCode.BadRequest, false)]
-    public async Task ForgotPassword_NonExistingEmail(string username, string password, string role, string name, string email, HttpStatusCode expectedStatusCode, bool expectedIsSuccess)
-    {
-        // Arrange
-        var forgotPasswordRequest = new ForgotPasswordRequestDTO
-        {
-            Email = email
-        };
-        var testUser = _DataFactory.CreateTestUser(username, password, role, name, email);
-
-        var forgotPasswordResponse = new ForgotPasswordResponseDTO
-        {
-            User = null,
-            Email = email
-        };
-
-        _userRepoMock.Setup(repo => repo.ForgotPassword(forgotPasswordRequest)).ReturnsAsync(forgotPasswordResponse);
-
-        // Act
-        var result = await _userController.ForgotPassword(forgotPasswordRequest) as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.That(result.StatusCode, Is.EqualTo((int)expectedStatusCode));
-        Assert.AreEqual(expectedIsSuccess, (bool)result.Value.GetType().GetProperty("IsSuccess")?.GetValue(result.Value));
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _dbContext.Dispose();
+            _dbContext.Dispose();
+        }
     }
 }
