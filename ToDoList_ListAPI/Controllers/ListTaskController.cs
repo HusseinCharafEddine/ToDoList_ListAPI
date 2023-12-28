@@ -28,6 +28,7 @@ namespace ToDoList_ListAPI.Controllers
         [AllowAnonymous]
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
             , int pageSize = 0, int pageNumber = 1)
         {
@@ -35,9 +36,24 @@ namespace ToDoList_ListAPI.Controllers
             {
                 IEnumerable<ListTask> listTaskList;
 
+                if (pageSize < 0)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    string ex = $"Page size can not be negative. {pageSize}";
+                    _response.ErrorMessages = new List<string>() { ex};
+                    throw new ArgumentException(ex);
+                }
 
-
-
+                if(pageNumber < 0)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    string ex = $"Page size can not be negative. {pageNumber}";
+                    _response.ErrorMessages = new List<string>() { ex };
+                    throw new ArgumentException(ex);
+                }
+                
                 listTaskList = await _dbListTask.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
 
                 if (!string.IsNullOrEmpty(search))

@@ -32,15 +32,12 @@ namespace ToDoList_ListTest
             _dbContext.SaveChanges();
             return user;
         }
-        public ListTask CreateTestListTask(string title, string category, string description, DateTime dueDate, bool isCompleted)
+        public ListTask CreateTestListTask(string title)
         {
             var listTask = new ListTask
             {
                 Title = title,
-                Category = category,
-                Description = description,
-                DueDate = dueDate,
-                IsCompleted = isCompleted
+                
             };
             _dbContext.ListTasks.Add(listTask);
             _dbContext.SaveChanges();
@@ -53,10 +50,10 @@ namespace ToDoList_ListTest
                 new ListTask
                 {
                     Id = 1,
-                    Title = "TestTask1",
+                    Title = "Task1",
                     Category = "Category 1",
                     Description = "Description for Task 1",
-                    DueDate = DateTime.Now,
+                    DueDate = DateTime.MinValue,
                     IsCompleted = false,
                 },
                 new ListTask
@@ -65,7 +62,7 @@ namespace ToDoList_ListTest
                     Title = "Task 2",
                     Category = "Category 2",
                     Description = "Description for Task 2",
-                    DueDate = DateTime.Now,
+                    DueDate = DateTime.MinValue,
                     IsCompleted = false,
                 },
                  new ListTask
@@ -74,7 +71,34 @@ namespace ToDoList_ListTest
                     Title = "Task 3",
                     Category = "Category 3",
                     Description = "Description for Task 3",
-                    DueDate = DateTime.Now,
+                    DueDate = DateTime.MinValue,
+                    IsCompleted = false,
+                },
+                  new ListTask
+                {
+                    Id = 4,
+                    Title = "Task4",
+                    Category = "Category 1",
+                    Description = "Description for Task 1",
+                    DueDate = DateTime.MinValue,
+                    IsCompleted = false,
+                },
+                new ListTask
+                {
+                    Id = 5,
+                    Title = "Task5",
+                    Category = "Category 2",
+                    Description = "Description for Task 2",
+                    DueDate = DateTime.MinValue,
+                    IsCompleted = false,
+                },
+                 new ListTask
+                {
+                    Id = 6,
+                    Title = "Task6",
+                    Category = "Category 3",
+                    Description = "Description for Task 3",
+                    DueDate = DateTime.MinValue,
                     IsCompleted = false,
                 },
             };
@@ -84,5 +108,6 @@ namespace ToDoList_ListTest
 
             return listTasks;
         }
+
     }
 }
