@@ -32,12 +32,16 @@ namespace ToDoList_ListTest
             _dbContext.SaveChanges();
             return user;
         }
-        public ListTask CreateTestListTask(string title)
+        public ListTask CreateTestListTask(int id, string title, string category, string description, DateTime dueDate, bool isCompleted)
         {
             var listTask = new ListTask
             {
+                Id = id,
                 Title = title,
-                
+                Category = category,
+                Description = description,
+                DueDate = dueDate,
+                IsCompleted = isCompleted
             };
             _dbContext.ListTasks.Add(listTask);
             _dbContext.SaveChanges();

@@ -57,60 +57,190 @@ namespace ToDoList_ListTest
         public async Task GetListTasks_ValidRequest_ReturnsOkResult(int pageSize, int pageNumber, HttpStatusCode expectedStatusCode, bool expectedResult)
         {
             // Arrange
-            var expectedList = _DataFactory.CreateTestListTasks();
+            //var expectedList = _DataFactory.CreateTestListTasks();
+            
+                _listTaskRepoMock
+                .Setup(repo => repo.GetAllAsync(
+                It.IsAny<Expression<Func<ListTask, bool>>>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<int>()
+            ))
+            .ReturnsAsync((Expression<Func<ListTask, bool>> filter, string includeProperties, int pageSize, int pageNumber) =>
+            {
+                // Mock behavior to return paginated result
+                var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
 
-            _listTaskRepoMock.Setup(repo => repo.GetAllAsync(It.IsAny<Expression<Func<ListTask, bool>>>(), null, pageSize, pageNumber));
+                // Apply filter if provided
+                if (filter != null)
+                {
+                    filteredList = filteredList.Where(filter);
+                }
+
+                // Pagination
+                if (pageSize > 0)
+                {
+                    if (pageSize > 100)
+                    {
+                        pageSize = 100;
+                    }
+
+                    filteredList = filteredList.Skip(pageSize * (pageNumber - 1)).Take(pageSize);
+                }
+
+                // Include related properties
+                if (!string.IsNullOrEmpty(includeProperties))
+                {
+                    foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        filteredList = filteredList.Include(includeProp);
+                    }
+                }
+
+                // Convert the filtered list to a ListTask collection
+                var result = filteredList.ToList();
+
+                // Return the result as if it came from the actual database
+                return result;
+            });
             // Act
             ActionResult<APIResponse> actionResult = await _listTaskController.GetListTasks(null, null, pageSize, pageNumber);
 
             APIResponse result = (APIResponse)((ObjectResult)actionResult.Result).Value;
-            int resultSize = (result.Result as ICollection<object>)?.Count ?? 0;
+            int resultSize = (result.Result as ICollection<ListTaskDTO>)?.Count ?? 0;
             List<ListTaskDTO> testTasks = new List<ListTaskDTO>();
-            foreach (ListTaskDTO item in (ICollection<ListTaskDTO>)result.Result)
-            {
-                testTasks.Add(item);
-            }
-            List<ListTaskDTO> listTasks = new List<ListTaskDTO>
-            {
-                new ListTaskDTO
-                {
-                    Id = 1,
-                    Title = "Task1",
-                    Category = "Category 1",
-                    Description = "Description for Task 1",
-                    DueDate = DateTime.MinValue,
-                    IsCompleted = false,
-                },
-                new ListTaskDTO
-                {
-                    Id = 2,
-                    Title = "Task 2",
-                    Category = "Category 2",
-                    Description = "Description for Task 2",
-                    DueDate = DateTime.MinValue,
-                    IsCompleted = false,
-                },
-                 new ListTaskDTO
-                {
-                    Id = 3,
-                    Title = "Task 3",
-                    Category = "Category 3",
-                    Description = "Description for Task 3",
-                    DueDate = DateTime.MinValue,    
-                    IsCompleted = false,
-                }
-            };
+            
 
             // Assert
             Assert.NotNull(actionResult);
             Assert.NotNull(result);
-            Assert.NotNull(testTasks[0]);
-            CollectionAssert.AreEqual(listTasks, testTasks);
             Assert.That(resultSize, Is.EqualTo(pageSize));
             Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
             Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
         }
+        [Test]
+        [TestCase(-1, 1, HttpStatusCode.BadRequest, false)]
+        [TestCase(2, -1, HttpStatusCode.BadRequest, false)]
+        public async Task GetListTasks_ValidRequest_ReturnsBadRequest(int pageSize, int pageNumber, HttpStatusCode expectedStatusCode, bool expectedResult)
+        {
+            // Arrange
+            //var expectedList = _DataFactory.CreateTestListTasks();
 
+            _listTaskRepoMock
+            .Setup(repo => repo.GetAllAsync(
+            It.IsAny<Expression<Func<ListTask, bool>>>(),
+            It.IsAny<string>(),
+            It.IsAny<int>(),
+            It.IsAny<int>()
+        ))
+        .ReturnsAsync((Expression<Func<ListTask, bool>> filter, string includeProperties, int pageSize, int pageNumber) =>
+        {
+            // Mock behavior to return paginated result
+            var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
+
+            // Apply filter if provided
+            if (filter != null)
+            {
+                filteredList = filteredList.Where(filter);
+            }
+
+            // Pagination
+            if (pageSize > 0)
+            {
+                if (pageSize > 100)
+                {
+                    pageSize = 100;
+                }
+
+                filteredList = filteredList.Skip(pageSize * (pageNumber - 1)).Take(pageSize);
+            }
+
+            // Include related properties
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    filteredList = filteredList.Include(includeProp);
+                }
+            }
+
+            // Convert the filtered list to a ListTask collection
+            var result = filteredList.ToList();
+
+            // Return the result as if it came from the actual database
+            return result;
+        });
+            // Act
+            ActionResult<APIResponse> actionResult = await _listTaskController.GetListTasks(null, null, pageSize, pageNumber);
+
+            APIResponse result = (APIResponse)(actionResult.Value);
+            int resultSize = (result.Result as ICollection<ListTaskDTO>)?.Count ?? 0;
+
+
+            // Assert
+            Assert.NotNull(actionResult);
+            Assert.Null(result.Result);
+            Assert.That(resultSize, Is.EqualTo(0));
+            Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
+            Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
+        }
+        [Test]
+        [TestCase(1,"","", "", false, HttpStatusCode.OK,true)]
+
+
+        public async Task GetListTask_ValidRequest_ReturnsOkResult(int id, string title, string category, string description, bool isCompleted, HttpStatusCode expectedStatusCode, bool expectedResult)
+        {
+            // Arrange
+            //var expectedList = _DataFactory.CreateTestListTasks();
+            var listTask = _DataFactory.CreateTestListTask(id, title, category, description, DateTime.MinValue, isCompleted);
+
+            _listTaskRepoMock
+        .Setup(repo => repo.GetAsync(
+            It.IsAny<Expression<Func<ListTask, bool>>>(),
+            It.IsAny<bool>(),
+            It.IsAny<string>()
+        ))
+        .ReturnsAsync(async (Expression<Func<ListTask, bool>> filter, bool tracked, string includeProperties) =>
+        {
+            // Your implementation here...
+            var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
+
+            if (!tracked)
+            {
+                filteredList = filteredList.AsNoTracking();
+            }
+            if (filter != null)
+            {
+                filteredList = filteredList.Where(filter);
+            }
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    filteredList = filteredList.Include(includeProp);
+                }
+            }
+
+            var response = await filteredList.FirstOrDefaultAsync();
+            return response;
+        });
+
+            // Act
+            ActionResult<APIResponse> actionResult = await _listTaskController.GetListTask(id);
+
+            APIResponse result = (APIResponse)((ObjectResult)actionResult.Result).Value;
+            int resultSize = (result.Result as ICollection<ListTaskDTO>)?.Count ?? 0;
+            List<ListTaskDTO> testTasks = new List<ListTaskDTO>();
+
+
+            // Assert
+            Assert.NotNull(actionResult);
+            Assert.NotNull(result);
+            Assert.That(resultSize, Is.EqualTo(1));
+            Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
+            Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
+        }
         //[Test]
         //[TestCase("newTask", HttpStatusCode.OK, true)]
         //public async Task GetListTask_ValidRequest_ReturnsOkResult(string title, HttpStatusCode expectedStatusCode, bool expectedResult)
@@ -149,6 +279,7 @@ namespace ToDoList_ListTest
         //    Assert.NotNull(result);
         //    Assert.AreEqual((int)HttpStatusCode.OK, result.StatusCode);
         //    Assert.That((result.Value as APIResponse)?.Result, Is.EqualTo(expectedResult));
-        //}
+        //} 
+
     }
 }

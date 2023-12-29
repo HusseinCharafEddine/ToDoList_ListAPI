@@ -73,6 +73,7 @@ namespace ToDoList_ListAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
+                if (_response.StatusCode == null)
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
