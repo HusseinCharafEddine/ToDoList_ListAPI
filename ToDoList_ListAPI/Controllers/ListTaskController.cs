@@ -5,6 +5,7 @@ using System.Net;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Repository.IRepository;
+using ToDoList_ListAPI.Services.IServices;
 
 namespace ToDoList_ListAPI.Controllers
 {
@@ -14,11 +15,11 @@ namespace ToDoList_ListAPI.Controllers
     {
         protected APIResponse _response;
         private readonly IMapper _mapper;
-        private readonly IListTaskRepository _dbListTask;
+        private readonly IListTaskService _listTaskService;
 
-        public ListTaskController(IListTaskRepository dbListTask, IMapper mapper)
+        public ListTaskController(IListTaskService listTaskService, IMapper mapper)
         {
-            _dbListTask = dbListTask;
+            _listTaskService= listTaskService;
             _mapper = mapper;
             _response = new();
         }
@@ -34,41 +35,17 @@ namespace ToDoList_ListAPI.Controllers
         {
             try
             {
-                IEnumerable<ListTask> listTaskList;
-
-                if (pageSize < 0)
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    string ex = $"Page size can not be negative. {pageSize}";
-                    _response.ErrorMessages = new List<string>() { ex};
-                    throw new ArgumentException(ex);
-                }
-
-                if(pageNumber < 0)
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    string ex = $"Page size can not be negative. {pageNumber}";
-                    _response.ErrorMessages = new List<string>() { ex };
-                    throw new ArgumentException(ex);
-                }
-                
-                listTaskList = await _dbListTask.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
-
-                if (!string.IsNullOrEmpty(search))
-                {
-                    listTaskList = listTaskList.Where(u => u.Title.ToLower().Contains(search));
-                }
-                if (!string.IsNullOrEmpty(category))
-                {
-                    listTaskList = listTaskList.Where(u => u.Category.ToLower().Contains(category));
-                }
-                Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
-                _response.Result = _mapper.Map<List<ListTaskDTO>>(listTaskList);
+                 var listTasks= await _listTaskService.GetAllAsync(category, search, pageSize, pageNumber);
+                _response.Result = _mapper.Map<List<ListTaskDTO>>(listTasks);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
 
+            }
+            catch (BadRequestException ex)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessages = new List<string> () { ex.ToString()} ;
             }
             catch (Exception ex)
             {
@@ -89,20 +66,18 @@ namespace ToDoList_ListAPI.Controllers
         {
             try
             {
-                if (id == 0)
-                {
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(_response);
-                }
-                var listTask = await _dbListTask.GetAsync(u => u.Id == id);
-                if (listTask == null)
-                {
-                    _response.StatusCode = HttpStatusCode.NotFound;
-                    return NotFound(_response);
-                }
+
+                var listTask = await _listTaskService.GetAsync(id);
+
                 _response.Result = _mapper.Map<ListTaskDTO>(listTask);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
+            }
+            catch (BadRequestException ex)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
             catch (Exception ex)
             {
@@ -125,22 +100,19 @@ namespace ToDoList_ListAPI.Controllers
         {
             try
             {
-                if (await _dbListTask.GetAsync(u => u.Title.ToLower() == createDTO.Title.ToLower()) != null)
-
-                {
-                    ModelState.AddModelError("ErrorMessages", "Task Already Exists");
-                    return BadRequest(ModelState);
-                }
-                if (createDTO == null)
-                {
-                    return BadRequest(createDTO);
-                }
-                ListTask listTask = _mapper.Map<ListTask>(createDTO);
-                await _dbListTask.CreateAsync(listTask);
+                
+                ListTaskDTO listTask = await _listTaskService.CreateAsync(createDTO);
                 _response.Result = _mapper.Map<ListTaskDTO>(listTask);
                 _response.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetListTask", new { id = listTask.Id }, _response);
-            } catch (Exception ex)
+            }
+            catch (BadRequestException ex)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
@@ -160,21 +132,26 @@ namespace ToDoList_ListAPI.Controllers
         {
             try
             {
-                if (id == 0) {
-                    return BadRequest();
-
-                }
-                var listTask = await _dbListTask.GetAsync(u => u.Id == id);
-                if (listTask == null)
-                {
-                    return NotFound();
-                }
-                await _dbListTask.RemoveAsync(listTask);
+                
+                await _listTaskService.RemoveAsync(id);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
 
-            } catch (Exception ex)
+            }
+            catch (BadRequestException ex)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            catch (NotFoundException ex)
+            {
+                _response.IsSuccess = true;
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
@@ -193,12 +170,7 @@ namespace ToDoList_ListAPI.Controllers
         {
             try
             {
-                if (updateDTO == null || id != updateDTO.Id)
-                {
-                    return BadRequest();
-                }
-                ListTask model = _mapper.Map<ListTask>(updateDTO);
-                await _dbListTask.UpdateAsync(model);
+                await _listTaskService.UpdateAsync(id, updateDTO);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);

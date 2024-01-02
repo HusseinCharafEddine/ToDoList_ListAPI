@@ -7,8 +7,8 @@ namespace ToDoList_ListAPI.Services.IServices
     {
         Task<List<T>> GetAllAsync(string? category, string? search, int pageSize = 0, int pageNumber = 1);
         Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true, string? includProperties = null);
-        Task CreateAsync(T entity);
-        Task RemoveAsync(T entity);
+        Task<T> CreateAsync(T entity);
+        //Task RemoveAsync(int id );
         Task SaveAsync();
     }
 }

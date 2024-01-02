@@ -14,6 +14,8 @@ using ToDoList_ListAPI;
 using ToDoList_ListAPI.Data;
 using ToDoList_ListAPI.Repository;
 using ToDoList_ListAPI.Repository.IRepository;
+using ToDoList_ListAPI.Services;
+using ToDoList_ListAPI.Services.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,7 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IListTaskRepository, ListTaskRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IListTaskService, ListTaskService>();
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 
 builder.Services.AddAuthentication(x =>

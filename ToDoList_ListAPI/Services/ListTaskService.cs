@@ -61,7 +61,7 @@ namespace ToDoList_ListAPI.Services
             }
             return _mapper.Map<ListTaskDTO>(listTask);
         }
-        public async Task CreateAsync(ListTaskCreateDTO createDTO) 
+        public async Task<ListTaskDTO> CreateAsync(ListTaskCreateDTO createDTO) 
         {
 
             if (await _listTaskRepo.GetAsync(u => u.Title.ToLower() == createDTO.Title.ToLower()) != null)
@@ -75,6 +75,8 @@ namespace ToDoList_ListAPI.Services
             }
             ListTask listTask = _mapper.Map<ListTask>(createDTO);
             await _listTaskRepo.CreateAsync(listTask);
+            ListTaskDTO listTaskDTO = _mapper.Map<ListTaskDTO>(listTask);
+            return listTaskDTO;
         }
         
         public async Task RemoveAsync(int id )
@@ -93,7 +95,7 @@ namespace ToDoList_ListAPI.Services
             await _listTaskRepo.RemoveAsync(listTask);
 
         }
-    public async Task UpdateAsync(int id, ListTask updateDTO)
+    public async Task UpdateAsync(int id, ListTaskUpdateDTO updateDTO)
         {
 
             if (updateDTO == null || id != updateDTO.Id)
@@ -106,5 +108,7 @@ namespace ToDoList_ListAPI.Services
         }
 
       
+
+
     }
 }
