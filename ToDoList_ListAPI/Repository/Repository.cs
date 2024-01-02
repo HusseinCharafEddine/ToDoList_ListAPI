@@ -2,10 +2,11 @@
 using System.Linq.Expressions;
 using System.Linq;
 using ToDoList_ListAPI.Data;
+using ToDoList_ListAPI.Repository.IRepository;
 
 namespace ToDoList_ListAPI.Repository
 {
-    public class Repository <T> where T : class
+    public class Repository <T> : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _db;
         internal DbSet<T> dbSet;

@@ -29,8 +29,8 @@ namespace ToDoList_ListAPI.Controllers
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
-            , int pageSize = 0, int pageNumber = 1)
+            public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
+                , int pageSize = 0, int pageNumber = 1)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace ToDoList_ListAPI.Controllers
         [HttpDelete("{id:int}", Name = "DeleteListTaskApi")]
         [Authorize(Roles = "admin")]
 
-        public async Task<ActionResult<APIResponse>> DeleteVilla(int id)
+        public async Task<ActionResult<APIResponse>> DeleteListTask(int id)
         {
             try
             {
@@ -184,12 +184,12 @@ namespace ToDoList_ListAPI.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut("{id:int}", Name = "UpdateVillaApi")]
+        [HttpPut("{id:int}", Name = "UpdateListTaskApi")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> UpdateVilla(int id, [FromBody] ListTaskUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateListTask(int id, [FromBody] ListTaskUpdateDTO updateDTO)
         {
             try
             {

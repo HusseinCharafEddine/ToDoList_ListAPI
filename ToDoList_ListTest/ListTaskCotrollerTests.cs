@@ -184,27 +184,29 @@ namespace ToDoList_ListTest
             Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
             Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
         }
+
+        public Mock<IListTaskRepository> Get_listTaskRepoMock()
+        {
+            return _listTaskRepoMock;
+        }
+
         [Test]
-        [TestCase(1,"","", "", false, HttpStatusCode.OK,true)]
-
-
+        [TestCase(1,"Title1","Task1", "sfasdf", false, HttpStatusCode.OK,true)]
         public async Task GetListTask_ValidRequest_ReturnsOkResult(int id, string title, string category, string description, bool isCompleted, HttpStatusCode expectedStatusCode, bool expectedResult)
         {
             // Arrange
             //var expectedList = _DataFactory.CreateTestListTasks();
-            var listTask = _DataFactory.CreateTestListTask(id, title, category, description, DateTime.MinValue, isCompleted);
-
             _listTaskRepoMock
-        .Setup(repo => repo.GetAsync(
+            .Setup(repo => repo.GetAsync(
             It.IsAny<Expression<Func<ListTask, bool>>>(),
             It.IsAny<bool>(),
             It.IsAny<string>()
         ))
-        .ReturnsAsync(async (Expression<Func<ListTask, bool>> filter, bool tracked, string includeProperties) =>
+        .ReturnsAsync((Expression<Func<ListTask, bool>> filter, bool tracked, string includeProperties) =>
         {
-            // Your implementation here...
+            // Mock behavior to return paginated result
             var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
-
+            tracked = false;
             if (!tracked)
             {
                 filteredList = filteredList.AsNoTracking();
@@ -222,9 +224,10 @@ namespace ToDoList_ListTest
                 }
             }
 
-            var response = await filteredList.FirstOrDefaultAsync();
-            return response;
+            ListTask task = filteredList.FirstOrDefault();
+            return task;
         });
+            var listTask = _DataFactory.CreateTestListTask(id, title, category, description, DateTime.MinValue, isCompleted);
 
             // Act
             ActionResult<APIResponse> actionResult = await _listTaskController.GetListTask(id);
@@ -241,45 +244,7 @@ namespace ToDoList_ListTest
             Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
             Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
         }
-        //[Test]
-        //[TestCase("newTask", HttpStatusCode.OK, true)]
-        //public async Task GetListTask_ValidRequest_ReturnsOkResult(string title, HttpStatusCode expectedStatusCode, bool expectedResult)
-        //{
-        //    // Arrange
-
-
-        //    var expectedTask = _DataFactory.CreateTestListTask(title);
-
-        //    _listTaskRepoMock.Setup(repo => repo.GetAsync(It.IsAny<Expression<Func<ListTask, bool>>>(), null, 0, 1))
-        //        .ReturnsAsync(expectedTask);
-        //    // Act
-        //    ActionResult<APIResponse> actionResult = await _listTaskController.GetListTasks(null, null, 0, 1);
-
-        //    APIResponse result = (APIResponse)((ObjectResult)actionResult.Result).Value;
-
-        //    // Assert
-        //    Assert.NotNull(actionResult);
-        //    Assert.NotNull(result);
-        //    Assert.That(result.StatusCode, Is.EqualTo(expectedStatusCode));
-        //    Assert.That((result.IsSuccess), Is.EqualTo(expectedResult));
-        //}
-        //[Test]
-        //public async Task GetListTask_ValidId_ReturnsOkResult()
-        //{
-        //    // Arrange
-        //    var expectedId = 1;
-        //    var expectedResult = _DataFactory.CreateTestListTasks().FirstOrDefault();
-        //    _listTaskRepoMock.Setup(repo => repo.GetAsync(It.IsAny<Expression<Func<ListTask, bool>>>(), true, null))
-        //        .ReturnsAsync(expectedResult);
-
-        //    // Act
-        //    var result = await _listTaskController.GetListTask(expectedId);
-
-        //    // Assert
-        //    Assert.NotNull(result);
-        //    Assert.AreEqual((int)HttpStatusCode.OK, result.StatusCode);
-        //    Assert.That((result.Value as APIResponse)?.Result, Is.EqualTo(expectedResult));
-        //} 
+        
 
     }
 }
