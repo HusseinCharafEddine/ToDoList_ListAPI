@@ -6,7 +6,7 @@ namespace ToDoList_ListAPI.Services.IServices
 {
     public interface IListTaskService 
     {
-        Task<List<ListTaskDTO>> GetAllAsync(string? category, string? search, int pageSize = 0, int pageNumber = 1);
+        Task<List<ListTaskDTO>> GetAllAsync(string? category = null, string? search = null, int pageSize = 0, int pageNumber = 1);
         Task<ListTaskDTO> GetAsync(int id );
         Task<ListTaskDTO> CreateAsync(ListTaskCreateDTO entity);
         Task RemoveAsync(int id);
