@@ -42,12 +42,12 @@ namespace ToDoList_ListTest
                 .Options;
 
             _dbContext = new ApplicationDbContext(options);
-            
+
             _listTaskRepo = new ListTaskRepository(_dbContext);
             _DataFactory = new DataFactory(_dbContext);
             _mapper = new MapperConfiguration(cfg => cfg.AddProfile<MappingConfig>()).CreateMapper();
             _listTaskService = new ListTaskService(_listTaskRepo, _mapper);
-            
+
         }
         [Test]
         public async Task GetAllAsync_WithValidInput_ReturnsMappedListTaskDTOList()
@@ -63,13 +63,13 @@ namespace ToDoList_ListTest
             Assert.That(result.Count, Is.EqualTo(6));
         }
         [Test]
-        [TestCase(1,3)]
-        public async Task GetAllAsync_WithValidInput_ReturnsMappedListTaskDTOList_WithValidPagination(int pageNumber,  int pageSize)
+        [TestCase(1, 3)]
+        public async Task GetAllAsync_WithValidInput_ReturnsMappedListTaskDTOList_WithValidPagination(int pageNumber, int pageSize)
         {
             // Arrange
             var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
             // Act
-            var result = await _listTaskService.GetAllAsync(pageNumber:pageNumber, pageSize: pageSize);
+            var result = await _listTaskService.GetAllAsync(pageNumber: pageNumber, pageSize: pageSize);
 
             // Assert
             Assert.IsNotNull(result);
@@ -78,7 +78,7 @@ namespace ToDoList_ListTest
         }
         [Test]
         [TestCase(-1, 3)]
-        [TestCase(3,-1)]
+        [TestCase(3, -1)]
         public async Task GetAllAsync_WithValidInput_ReturnsMappedListTaskDTOList_WithInvalidPagination(int pageNumber, int pageSize)
         {
             // Arrange
@@ -96,7 +96,7 @@ namespace ToDoList_ListTest
 
         [Test]
         [TestCase(1)]
-        public async Task GetAsync_WithValidInput_ReturnsListTaskDTO (int id)
+        public async Task GetAsync_WithValidInput_ReturnsListTaskDTO(int id)
         {
             //Arrange
             var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
@@ -166,7 +166,7 @@ namespace ToDoList_ListTest
             return task.Id;
         }
         [Test]
-        [TestCase(7, null , "safd", "asdf", true)]
+        [TestCase(7, null, "safd", "asdf", true)]
         public async Task CreateTestListTaskAsync_WithNullTitle(int id, string title, string category, string description, bool isCompleted)
         {
             //Arrange
@@ -242,7 +242,7 @@ namespace ToDoList_ListTest
             Assert.That(exception.Message, Does.Contain("Id can not be nonpositive"));
         }
         [Test]
-        public async Task UpdateListTaskAsync_ValidId_ValidDTO ()
+        public async Task UpdateListTaskAsync_ValidId_ValidDTO()
         {
             //Arrange
             int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
@@ -259,25 +259,17 @@ namespace ToDoList_ListTest
 
             //Assert
             Assert.That(listTaskPreUpdate.Id, Is.EqualTo(listTaskPostUpdate.Id));
-            Assert.That(listTaskPreUpdate.Title , Is.Not.EqualTo(listTaskPostUpdate.Title));    
-        
+            Assert.That(listTaskPreUpdate.Title, Is.Not.EqualTo(listTaskPostUpdate.Title));
+
         }
 
-       
+
 
         [Test]
-    [TestCase(7, 2, "title", "category", "description", true)]
-    public async Task UpdateListTaskAsync_NonExistentId_ValidDTO(int id, int id2, string title, string category, string description, bool isCompleted) {
-        var listTaskUpdateDTO = new ListTaskUpdateDTO
-        {
-            Id = id2,
-            Title = title,
-            Category = category,
-            Description = description,
-            DueDate = DateTime.Now,
-            IsCompleted = isCompleted
-        };
-        _DataFactory.CreateTestListTasks();
+        public async Task UpdateListTaskAsync_NonExistentId_ValidDTO() {
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTO(7);
+
 
             //Act
             var exception = Assert.ThrowsAsync<BadRequestException>(async () =>
@@ -290,47 +282,30 @@ namespace ToDoList_ListTest
         }
 
         [Test]
-        [TestCase(-1, 2, "title", "category", "description", true)]
-        public async Task UpdateListTaskAsync_NonPositiveId_ValidDTO(int id, int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_NonPositiveId_ValidDTO()
         {
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = title,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTO(-2);
+
 
             //Act
-            
+
             var exception = Assert.ThrowsAsync<BadRequestException>(async () =>
             {
-                await _listTaskService.UpdateAsync(id, listTaskUpdateDTO);
+                await _listTaskService.UpdateAsync(-2, listTaskUpdateDTO);
             });
 
             //Assert
             Assert.That(exception.Message, Does.Contain("Id can not be nonpositive"));
         }
         [Test]
-        [TestCase(2, 2, "title", "category", "description", true)]
 
-        public async Task UpdateListTaskAsync_ValidId_UnvalidDTO(int id, int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_ValidId_UnvalidDTO()
         {
             //Arrange
 
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = null,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTONullTitle(6);
 
             //Act
             var listTaskPreUpdate = await _listTaskService.GetAsync(id);
@@ -352,20 +327,11 @@ namespace ToDoList_ListTest
 
         }
         [Test]
-        [TestCase(7, 2, "title", "category", "description", true)]
 
-        public async Task UpdateListTaskAsync_NonExistentId_UnvalidDTO_MismatchingIds(int id, int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_NonExistentId_UnvalidDTO_MismatchingIds()
         {
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = null,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(5, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTONullTitle(6);
 
             //Act
             GetAsync_WithNonExistentID_ReturnsNull(listTaskUpdateDTO.Id);
@@ -377,20 +343,12 @@ namespace ToDoList_ListTest
             //Assert
             Assert.That(exception.Message, Does.Contain("Task is null, or id toesnt match that of the task"));
         }
-        [TestCase(7, 7, "title", "category", "description", true)]
-
-        public async Task UpdateListTaskAsync_NonExistentId_UnvalidDTO_MatchingIds(int id, int id2, string title, string category, string description, bool isCompleted)
+        [Test]
+        public async Task UpdateListTaskAsync_NonExistentId_UnvalidDTO_MatchingIds()
         {
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = null,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTONullTitle(6);
+
 
             //Act
             GetAsync_WithNonExistentID_ReturnsNull(listTaskUpdateDTO.Id);
@@ -404,40 +362,31 @@ namespace ToDoList_ListTest
         }
 
         [Test]
-        [TestCase(-1, 2, "title", "category", "description", true)]
-        [TestCase(-1, -1, "title", "category", "description", true)]
+        [TestCase( 2)]
+        [TestCase( -1)]
 
-        public async Task UpdateListTaskAsync_NonPositiveId_UnvalidDTO(int id, int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_NonPositiveId_UnvalidDTO( int id2)
         {
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = null,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTONullTitle(id2);
+
 
             //Act
             var exception = Assert.ThrowsAsync<BadRequestException>(async () =>
             {
-                await _listTaskService.UpdateAsync(id, listTaskUpdateDTO);
+                await _listTaskService.UpdateAsync(-1, listTaskUpdateDTO);
             });
 
             //Assert
             Assert.That(exception.Message, Does.Contain("Id can not be nonpositive"));
         }
         [Test]
-        [TestCase(2)]
 
-        public async Task UpdateListTaskAsync_ValidId_NullDTO(int id)
+        public async Task UpdateListTaskAsync_ValidId_NullDTO()
         {
             //Arrange
 
-            ListTaskUpdateDTO listTaskUpdateDTO = null;
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
 
             //Act
             var listTaskPreUpdate = await _listTaskService.GetAsync(id);
@@ -448,7 +397,7 @@ namespace ToDoList_ListTest
             }
             var exception = Assert.ThrowsAsync<BadRequestException>(async () =>
             {
-                await _listTaskService.UpdateAsync(id, listTaskUpdateDTO);
+                await _listTaskService.UpdateAsync(id, null);
             });
             var listTaskPostUpdate = await _listTaskService.GetAsync(id);
 
@@ -459,18 +408,16 @@ namespace ToDoList_ListTest
 
         }
         [Test]
-        [TestCase(7)]
-        public async Task UpdateListTaskAsync_NonExistentId_NullDTO(int id)
+        public async Task UpdateListTaskAsync_NonExistentId_NullDTO()
         {
-            ListTaskUpdateDTO listTaskUpdateDTO = null;
 
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
 
             //Act
-            GetAsync_WithNonExistentID_ReturnsNull(id);
+            GetAsync_WithNonExistentID_ReturnsNull(7);
             var exception = Assert.ThrowsAsync<BadRequestException>(async () =>
             {
-                await _listTaskService.UpdateAsync(id, listTaskUpdateDTO);
+                await _listTaskService.UpdateAsync(7, null);
             });
 
             //Assert
@@ -496,22 +443,13 @@ namespace ToDoList_ListTest
         }
 
         [Test]
-        [TestCase(3, 2, "title", "category", "description", true)]
 
-        public async Task UpdateListTaskAsync_ValidId_ValidDTO_MismatchingIds(int id, int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_ValidId_ValidDTO_MismatchingIds()
         {
             //Arrange
 
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = title,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(3, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTO(2);
 
             //Act
             var listTaskPreUpdate = await _listTaskService.GetAsync(id);

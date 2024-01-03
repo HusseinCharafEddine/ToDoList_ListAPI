@@ -123,5 +123,17 @@ namespace ToDoList_ListTest
                 IsCompleted = false,
             };
         }
+        public ListTaskUpdateDTO CreateTestListTaskUpdateDTONullTitle(int id)
+        {
+            return new ListTaskUpdateDTO
+            {
+                Id = id,
+                Title = null,
+                Category = "Category " + id,
+                Description = "Description for Task " + id,
+                DueDate = DateTime.MinValue,
+                IsCompleted = false,
+            };
+        }
     }
 }
