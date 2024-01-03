@@ -111,6 +111,17 @@ namespace ToDoList_ListTest
 
             return listTasks;
         }
-
+        public ListTaskUpdateDTO CreateTestListTaskUpdateDTO(int id)
+        {
+            return new ListTaskUpdateDTO
+            {
+                Id = id,
+                Title = "Task " + id,
+                Category = "Category " + id,
+                Description = "Description for Task " + id,
+                DueDate = DateTime.MinValue,
+                IsCompleted = false,
+            };
+        }
     }
 }

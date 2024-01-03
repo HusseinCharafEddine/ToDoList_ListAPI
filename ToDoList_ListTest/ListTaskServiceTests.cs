@@ -242,22 +242,11 @@ namespace ToDoList_ListTest
             Assert.That(exception.Message, Does.Contain("Id can not be nonpositive"));
         }
         [Test]
-        [TestCase(2 , 2 , "title", "category" , "description" , true )]
-        public async Task UpdateListTaskAsync_ValidId_ValidDTO (int id , int id2, string title, string category, string description, bool isCompleted)
+        public async Task UpdateListTaskAsync_ValidId_ValidDTO ()
         {
             //Arrange
-
-            var listTaskUpdateDTO = new ListTaskUpdateDTO
-            {
-                Id = id2,
-                Title = title,
-                Category = category,
-                Description = description,
-                DueDate = DateTime.Now,
-                IsCompleted = isCompleted
-            };
-            _DataFactory.CreateTestListTasks();
-
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
+            ListTaskUpdateDTO listTaskUpdateDTO = _DataFactory.CreateTestListTaskUpdateDTO(6);
             //Act
             var listTaskPreUpdate = await _listTaskService.GetAsync(id);
             var existingEntity = _dbContext.Set<ListTask>().Local.FirstOrDefault(u => u.Id == id);
@@ -273,7 +262,10 @@ namespace ToDoList_ListTest
             Assert.That(listTaskPreUpdate.Title , Is.Not.EqualTo(listTaskPostUpdate.Title));    
         
         }
-    [Test]
+
+       
+
+        [Test]
     [TestCase(7, 2, "title", "category", "description", true)]
     public async Task UpdateListTaskAsync_NonExistentId_ValidDTO(int id, int id2, string title, string category, string description, bool isCompleted) {
         var listTaskUpdateDTO = new ListTaskUpdateDTO
