@@ -143,14 +143,14 @@ namespace ToDoList_ListTest
         }
 
         [Test]
-        [TestCase(7, "hello", "safd", "asdf", true)]
-        public async Task CreateTestListTaskAsync_ValidInput(int id, string title, string category, string description, bool isCompleted)
+        [TestCase(6, "hello", "safd", "asdf", true, ExpectedResult = 6)]
+
+        public async Task<int> CreateTestListTaskAsync_ValidInput(int id, string title, string category, string description, bool isCompleted)
         {
             //Arrange
             var filteredList = _DataFactory.CreateTestListTasks().AsQueryable();
             var listTask = new ListTaskCreateDTO
             {
-                Id = id,
                 Title = title,
                 Category = category,
                 Description = description,
@@ -159,9 +159,11 @@ namespace ToDoList_ListTest
             };
             //Act
             await _listTaskService.CreateAsync(listTask);
-            var task = await _listTaskService.GetAsync(listTask.Id);
+            var listTasks = await _listTaskService.GetAllAsync();
+            var task = await _listTaskService.GetAsync(id);
             // Assert
             Assert.IsNotNull(task);
+            return task.Id;
         }
         [Test]
         [TestCase(7, null , "safd", "asdf", true)]
@@ -201,10 +203,9 @@ namespace ToDoList_ListTest
         }
 
         [Test]
-        [TestCase(2)]
-        public async Task DeleteListTaskAsync_ValidInput(int id)
+        public async Task DeleteListTaskAsync_ValidInput()
         {
-            _DataFactory.CreateTestListTasks();
+            int id = CreateTestListTaskAsync_ValidInput(6, "hello", "safd", "asdf", true).Result;
             var listTaskPreDelete = await _listTaskService.GetAsync(id);
             await _listTaskService.RemoveAsync(listTaskPreDelete.Id);
             GetAsync_WithNonExistentID_ReturnsNull(listTaskPreDelete.Id);
