@@ -22,7 +22,7 @@ namespace ToDoList_ListAPI.Services
             _listTaskRepo = listTaskRepo;
             _mapper = mapper;
         }
-        public async Task<List<ListTaskDTO>> GetAllAsync(string? category,  string? search, int pageSize = 0, int pageNumber = 1)
+        public async Task<List<ListTaskDTO>> GetAllAsync(string? category, string? search, int pageSize = 0, int pageNumber = 1)
         {
             IEnumerable<ListTask> listTaskList = await _listTaskRepo.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
             if (pageSize < 0)
@@ -33,7 +33,7 @@ namespace ToDoList_ListAPI.Services
 
             if (pageNumber < 0)
             {
-                string ex = $"Page size can not be negative. {pageNumber}";
+                string ex = $"Page number can not be negative. {pageNumber}";
                 throw new BadRequestException(ex);
             }
             if (!string.IsNullOrEmpty(search))
@@ -61,18 +61,18 @@ namespace ToDoList_ListAPI.Services
             }
             return _mapper.Map<ListTaskDTO>(listTask);
         }
-        public async Task<ListTaskDTO> CreateAsync(ListTaskCreateDTO createDTO) 
+        public async Task<ListTaskDTO> CreateAsync(ListTaskCreateDTO createDTO)
         {
-
+            if (createDTO == null || createDTO.Title == null)
+            {
+                throw new BadRequestException("Some fields are empty please fill required fields");
+            }
             if (await _listTaskRepo.GetAsync(u => u.Title.ToLower() == createDTO.Title.ToLower()) != null)
             {
                 throw new BadRequestException("Task with the title '" + createDTO.Title + "' already exists");
 
             }
-            if (createDTO == null)
-            {
-                throw new BadRequestException("Task is empty please fill required fields");
-            }
+            
             ListTask listTask = _mapper.Map<ListTask>(createDTO);
             await _listTaskRepo.CreateAsync(listTask);
             ListTaskDTO listTaskDTO = _mapper.Map<ListTaskDTO>(listTask);
@@ -97,10 +97,20 @@ namespace ToDoList_ListAPI.Services
         }
     public async Task UpdateAsync(int id, ListTaskUpdateDTO updateDTO)
         {
-
+            if (id <= 0)
+            {
+                string ex = "Id can not be nonpositive";
+                throw new BadRequestException(ex);
+            }
+            
             if (updateDTO == null || id != updateDTO.Id)
             {
                 string ex = "Task is null, or id toesnt match that of the task";
+                throw new BadRequestException(ex);
+            }
+            if (updateDTO.Title == null)
+            {
+                string ex = "Title can not be empty";
                 throw new BadRequestException(ex);
             }
             ListTask model = _mapper.Map<ListTask>(updateDTO);
