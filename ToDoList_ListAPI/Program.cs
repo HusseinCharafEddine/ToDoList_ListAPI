@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using ToDoList_ListAPI;
 using ToDoList_ListAPI.Data;
+using ToDoList_ListAPI.Middleware;
 using ToDoList_ListAPI.Repository;
 using ToDoList_ListAPI.Repository.IRepository;
 using ToDoList_ListAPI.Services;
@@ -48,15 +49,20 @@ builder.Services.AddAuthentication(x =>
             ValidateAudience = false
         };
     });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy =>
+        policy.RequireRole("Admin"));
+});
 
-builder.Services.AddControllers(option => {
-    option.CacheProfiles.Add("Default30",
-       new CacheProfile()
-       {
-           Duration = 30
-       });
-    //option.ReturnHttpNotAcceptable=true;
-}).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
+//builder.Services.AddControllers(option => {
+//    option.CacheProfiles.Add("Default30",
+//       new CacheProfile()
+//       {
+//           Duration = 30
+//       });
+//    //option.ReturnHttpNotAcceptable=true;
+//}).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -98,7 +104,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseAuthorization();
+ app.UseCustomCaching();
+
 app.MapControllers();
 
 app.Run();

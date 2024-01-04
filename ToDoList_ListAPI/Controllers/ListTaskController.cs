@@ -27,7 +27,6 @@ namespace ToDoList_ListAPI.Controllers
         
         [HttpGet]
         [AllowAnonymous]
-        [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
             public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
