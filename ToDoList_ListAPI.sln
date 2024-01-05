@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList_ListAPI", "ToDoLis
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList_Utility", "ToDoList_Utility\ToDoList_Utility.csproj", "{740EC595-95FF-4487-B9F6-8914E0247F27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList_ListTest", "ToDoList_ListTest\ToDoList_ListTest.csproj", "{D2E6EADE-5261-4E61-A533-2919EDAC29FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList_ListTest", "ToDoList_ListTest\ToDoList_ListTest.csproj", "{D2E6EADE-5261-4E61-A533-2919EDAC29FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList_Services", "ToDoList_Services\ToDoList_Services.csproj", "{539C0C8C-86DD-4B45-9D6F-80BBBB6F5705}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList_Repositories", "ToDoList_Repositories\ToDoList_Repositories.csproj", "{84CD5584-212E-4FD4-B749-0AB0A0E3F40C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{D2E6EADE-5261-4E61-A533-2919EDAC29FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2E6EADE-5261-4E61-A533-2919EDAC29FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2E6EADE-5261-4E61-A533-2919EDAC29FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{539C0C8C-86DD-4B45-9D6F-80BBBB6F5705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{539C0C8C-86DD-4B45-9D6F-80BBBB6F5705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{539C0C8C-86DD-4B45-9D6F-80BBBB6F5705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{539C0C8C-86DD-4B45-9D6F-80BBBB6F5705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84CD5584-212E-4FD4-B749-0AB0A0E3F40C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84CD5584-212E-4FD4-B749-0AB0A0E3F40C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84CD5584-212E-4FD4-B749-0AB0A0E3F40C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84CD5584-212E-4FD4-B749-0AB0A0E3F40C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

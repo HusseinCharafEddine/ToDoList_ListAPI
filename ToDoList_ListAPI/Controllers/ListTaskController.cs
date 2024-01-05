@@ -5,7 +5,6 @@ using System.Net;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Services.IServices;
 
 namespace ToDoList_ListAPI.Controllers
 {
@@ -45,6 +44,8 @@ namespace ToDoList_ListAPI.Controllers
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessages = new List<string> () { ex.ToString()} ;
+                return BadRequest(_response);
+
             }
             catch (Exception ex)
             {
@@ -77,6 +78,7 @@ namespace ToDoList_ListAPI.Controllers
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
+
             }
             catch (Exception ex)
             {
@@ -143,12 +145,14 @@ namespace ToDoList_ListAPI.Controllers
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
+
             }
             catch (NotFoundException ex)
             {
                 _response.IsSuccess = true;
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
+
             }
             catch (Exception ex)
             {

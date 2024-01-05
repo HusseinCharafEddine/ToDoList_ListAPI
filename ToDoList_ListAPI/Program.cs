@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -25,6 +26,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
@@ -49,11 +55,7 @@ builder.Services.AddAuthentication(x =>
             ValidateAudience = false
         };
     });
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireAdminRole", policy =>
-        policy.RequireRole("Admin"));
-});
+
 
 //builder.Services.AddControllers(option => {
 //    option.CacheProfiles.Add("Default30",
@@ -104,7 +106,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
- app.UseCustomCaching();
+app.UseAuthorization();
+app.UseMiddleware<CustomResponseMiddleware>();
+app.UseCustomCaching();
 
 app.MapControllers();
 

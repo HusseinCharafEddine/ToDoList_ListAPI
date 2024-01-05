@@ -14,11 +14,10 @@ using ToDoList_ListAPI.Data;
 using ToDoList_ListAPI.Models.DTO;
 using ToDoList_ListAPI.Models;
 using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Services;
-using ToDoList_ListAPI.Services.IServices;
 using ToDoList_ListAPI.Repository;
 using Microsoft.VisualBasic;
 using NUnit.Framework.Internal;
+using ToDoList_ListAPI.Services.IServices;
 
 namespace ToDoList_ListTest
 {
