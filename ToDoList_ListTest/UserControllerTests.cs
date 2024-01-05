@@ -4,12 +4,12 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ToDoList_ListAPI.Controllers;
-using ToDoList_ListAPI.Models.DTO;
-using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Models;
+using ToDoList_Utility.Models.DTO;
+using ToDoList_Repository.Repository.IRepository;
+using ToDoList_Utility.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ToDoList_ListAPI.Data;
+using ToDoList_Utility.Data;
 using System.Data;
 
 namespace ToDoList_ListTest

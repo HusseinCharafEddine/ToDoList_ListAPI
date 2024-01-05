@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
-using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Services.IServices;
+using ToDoList_Repository.Repository.IRepository;
+using ToDoList_Services.Services.IServices;
 
-namespace ToDoList_ListAPI.Services
+namespace ToDoList_Services.Services
 {
     public class Service<T> : IService<T> where T : class
     {

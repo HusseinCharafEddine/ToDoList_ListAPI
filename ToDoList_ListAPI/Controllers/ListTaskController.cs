@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using ToDoList_ListAPI.Models;
-using ToDoList_ListAPI.Models.DTO;
-using ToDoList_ListAPI.Repository.IRepository;
+using ToDoList_Utility.Models;
+using ToDoList_Utility.Models.DTO;
 
 namespace ToDoList_ListAPI.Controllers
 {

@@ -23,4 +23,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ToDoList_Repository\ToDoList_Repository.csproj" />
+    <ProjectReference Include="..\ToDoList_Services\ToDoList_Services.csproj" />
+    <ProjectReference Include="..\ToDoList_Utility\ToDoList_Utility.csproj" />
+  </ItemGroup>
+
 </Project>

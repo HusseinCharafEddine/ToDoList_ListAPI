@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
-namespace ToDoList_ListAPI.Services.IServices
+namespace ToDoList_Services.Services.IServices
 {
     public interface IService <T> where T : class
     {

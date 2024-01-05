@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using System;
-using ToDoList_ListAPI.Models;
+using ToDoList_Utility.Models;
 
 namespace ToDoList_ListAPI.Validators
 {

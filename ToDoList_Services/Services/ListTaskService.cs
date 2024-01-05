@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Net;
-using ToDoList_ListAPI.Models;
-using ToDoList_ListAPI.Models.DTO;
-using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Services.IServices;
+using ToDoList_Repository.Repository.IRepository;
+using ToDoList_Utility.Models;
+using ToDoList_Utility.Models.DTO;
+using ToDoList_Services.Services.IServices;
 
-namespace ToDoList_ListAPI.Services
+namespace ToDoList_Services.Services
 {
     public class ListTaskService : Service<ListTask>, IListTaskService
     {

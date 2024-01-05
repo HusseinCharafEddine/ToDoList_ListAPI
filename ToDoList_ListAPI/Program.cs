@@ -12,12 +12,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ToDoList_ListAPI;
-using ToDoList_ListAPI.Data;
+using ToDoList_Repository.Data;
 using ToDoList_ListAPI.Middleware;
-using ToDoList_ListAPI.Repository;
-using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Services;
-using ToDoList_ListAPI.Services.IServices;
+using ToDoList_Repository.Repository;
+using ToDoList_Repository.Repository.IRepository;
+using ToDoList_Services.Services;
+using ToDoList_Services.Services.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
 

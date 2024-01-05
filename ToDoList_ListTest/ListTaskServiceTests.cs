@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using ToDoList_ListAPI;
 using ToDoList_ListAPI.Controllers;
 using ToDoList_ListAPI.Data;
-using ToDoList_ListAPI.Models.DTO;
-using ToDoList_ListAPI.Models;
-using ToDoList_ListAPI.Repository.IRepository;
-using ToDoList_ListAPI.Repository;
+using ToDoList_Utility.Models.DTO;
+using ToDoList_Utility.Models;
+using ToDoList_Repository.Repository.IRepository;
+using ToDoList_Repository.Repository;
 using Microsoft.VisualBasic;
 using NUnit.Framework.Internal;
-using ToDoList_ListAPI.Services.IServices;
+using ToDoList_Services.Services.IServices;
 
 namespace ToDoList_ListTest
 {

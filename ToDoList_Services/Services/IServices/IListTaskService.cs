@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
-using ToDoList_ListAPI.Models;
-using ToDoList_ListAPI.Models.DTO;
+using ToDoList_Utility.Models;
+using ToDoList_Utility.Models.DTO;
 
-namespace ToDoList_ListAPI.Services.IServices
+namespace ToDoList_Services.Services.IServices
 {
     public interface IListTaskService 
     {
