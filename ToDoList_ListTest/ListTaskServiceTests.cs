@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ToDoList_ListAPI;
 using ToDoList_ListAPI.Controllers;
-using ToDoList_ListAPI.Data;
+using ToDoList_Repository.Data;
 using ToDoList_Utility.Models.DTO;
 using ToDoList_Utility.Models;
 using ToDoList_Repository.Repository.IRepository;
@@ -18,6 +18,8 @@ using ToDoList_Repository.Repository;
 using Microsoft.VisualBasic;
 using NUnit.Framework.Internal;
 using ToDoList_Services.Services.IServices;
+using ToDoList_Services.Services;
+using ToDoList_Services;
 
 namespace ToDoList_ListTest
 {

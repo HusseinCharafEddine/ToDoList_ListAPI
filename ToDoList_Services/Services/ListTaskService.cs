@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Azure;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Net;
 using ToDoList_Repository.Repository.IRepository;

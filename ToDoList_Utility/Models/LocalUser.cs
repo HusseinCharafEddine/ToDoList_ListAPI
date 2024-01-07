@@ -9,7 +9,7 @@ namespace ToDoList_Utility.Models
         public string Name { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
-        public string ?ResetToken { get; internal set; }
-        public DateTime ?ResetTokenExpiration { get; internal set; }
+        public string ?ResetToken { get;  set; }
+        public DateTime ?ResetTokenExpiration { get;  set; }
     }
 }

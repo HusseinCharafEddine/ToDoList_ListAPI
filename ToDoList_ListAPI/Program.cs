@@ -33,7 +33,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 
 
 builder.Services.AddControllers();
-builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddAutoMapper(typeof(ToDoList_Services.MappingConfig));
 builder.Services.AddScoped<IListTaskRepository, ListTaskRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IListTaskService, ListTaskService>();

@@ -7,7 +7,6 @@ using ToDoList_Utility.Models.DTO;
 using ToDoList_Utility.Models;
 using ToDoList_Repository.Repository.IRepository;
 using Azure.Core;
-using Microsoft.AspNetCore.Identity;
 using System.Net.Mail;
 using System.Net;
 
@@ -19,10 +18,10 @@ namespace ToDoList_Repository.Repository
         private readonly ApplicationDbContext _db;
         private string secretKey;
 
-        public UserRepository(ApplicationDbContext db, IConfiguration configuration)
+        public UserRepository(ApplicationDbContext db)
         {
             _db = db;
-            secretKey = configuration.GetValue<string>("ApiSettings:Secret");
+            secretKey = "Test 21323 tsadfas trasd fsadfaw teasf ";
 
         }
         public bool IsUniqueUser(string username)

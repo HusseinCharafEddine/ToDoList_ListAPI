@@ -9,7 +9,7 @@ using ToDoList_Repository.Repository.IRepository;
 using ToDoList_Utility.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ToDoList_Utility.Data;
+using ToDoList_Repository.Data;
 using System.Data;
 
 namespace ToDoList_ListTest

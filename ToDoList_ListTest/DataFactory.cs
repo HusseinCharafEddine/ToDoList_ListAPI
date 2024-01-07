@@ -6,7 +6,7 @@ using ToDoList_ListAPI.Controllers;
 using ToDoList_Utility.Models.DTO;
 using ToDoList_Repository.Repository.IRepository;
 using ToDoList_Utility.Models;
-using ToDoList_ListAPI.Data;
+using ToDoList_Repository.Data;
 
 namespace ToDoList_ListTest
 {
