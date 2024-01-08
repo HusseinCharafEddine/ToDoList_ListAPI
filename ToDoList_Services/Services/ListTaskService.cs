@@ -6,6 +6,9 @@ using ToDoList_Repository.Repository.IRepository;
 using ToDoList_Utility.Models;
 using ToDoList_Utility.Models.DTO;
 using ToDoList_Services.Services.IServices;
+using ToDoList_Utility.Validators;
+using FluentValidation;
+using ToDoList_ListAPI.Validators;
 
 namespace ToDoList_Services.Services
 {
@@ -13,6 +16,8 @@ namespace ToDoList_Services.Services
     {
         private readonly IListTaskRepository _listTaskRepo;
         private readonly IMapper _mapper;
+        //private readonly AbstractValidator<ListTaskDeleteDTO> _deleteValidator;
+        //private readonly AbstractValidator<ListTaskDTO> _validator;
 
         public ListTaskService(IListTaskRepository listTaskRepo, IMapper mapper)
             : base(listTaskRepo)
@@ -22,26 +27,27 @@ namespace ToDoList_Services.Services
         }
         public async Task<List<ListTaskDTO>> GetAllAsync(string? category, string? search, int pageSize = 0, int pageNumber = 1)
         {
-            IEnumerable<ListTask> listTaskList = await _listTaskRepo.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
-            if (pageSize < 0)
+            Pagination page = new Pagination
             {
-                string ex = $"Page size can not be negative. {pageSize}";
-                throw new BadRequestException(ex);
-            }
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+            };
+            PaginationValidator paginationValidator = new PaginationValidator();
 
-            if (pageNumber < 0)
+            var validationResult = paginationValidator.Validate(page);
+            if (!validationResult.IsValid)
             {
-                string ex = $"Page number can not be negative. {pageNumber}";
-                throw new BadRequestException(ex);
+                // Validation failed
+                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+                throw new BadRequestException(string.Join(" ", errors));
             }
-            if (!string.IsNullOrEmpty(search))
-            {
-                listTaskList = (List<ListTask>)listTaskList.Where(u => u.Title.ToLower().Contains(search));
-            }
-            if (!string.IsNullOrEmpty(category))
-            {
-                listTaskList = (List<ListTask>)listTaskList.Where(u => u.Category.ToLower().Contains(category));
-            }
+            IEnumerable<ListTask> listTaskList = await _listTaskRepo.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
+
+            Func<ListTask, bool> predicate = u =>
+             (string.IsNullOrEmpty(search) || u.Title.ToLower().Contains(search)) &&
+             (string.IsNullOrEmpty(category) || u.Category.ToLower().Contains(category));
+             
+            listTaskList = listTaskList.Where(predicate);
             return _mapper.Map<List<ListTaskDTO>>(listTaskList); ;
         }
         public async Task<ListTaskDTO> GetAsync(int id)
@@ -61,9 +67,18 @@ namespace ToDoList_Services.Services
         }
         public async Task<ListTaskDTO> CreateAsync(ListTaskCreateDTO createDTO)
         {
-            if (createDTO == null || createDTO.Title == null)
+            if (createDTO == null)
             {
-                throw new BadRequestException("Some fields are empty please fill required fields");
+                throw new BadRequestException("Some fields.");
+            }
+            ListTaskCreateValidator createValidator = new ListTaskCreateValidator();
+            var validationResult = createValidator.Validate(createDTO);
+
+            if (!validationResult.IsValid)
+            {
+                // Validation failed
+                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+                throw new BadRequestException(string.Join(" ", errors));
             }
             if (await _listTaskRepo.GetAsync(u => u.Title.ToLower() == createDTO.Title.ToLower()) != null)
             {
@@ -106,10 +121,13 @@ namespace ToDoList_Services.Services
                 string ex = "Task is null, or id toesnt match that of the task";
                 throw new BadRequestException(ex);
             }
-            if (updateDTO.Title == null)
+            ListTaskUpdateValidator updateValidator = new ListTaskUpdateValidator();
+            var validationResult = updateValidator.Validate(updateDTO);
+            if (!validationResult.IsValid)
             {
-                string ex = "Title can not be empty";
-                throw new BadRequestException(ex);
+                // Validation failed
+                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+                throw new BadRequestException(string.Join(" ", errors));
             }
             ListTask model = _mapper.Map<ListTask>(updateDTO);
             await _listTaskRepo.UpdateAsync(model);

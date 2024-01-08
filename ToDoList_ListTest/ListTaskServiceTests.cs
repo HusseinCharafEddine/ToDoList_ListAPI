@@ -20,6 +20,8 @@ using NUnit.Framework.Internal;
 using ToDoList_Services.Services.IServices;
 using ToDoList_Services.Services;
 using ToDoList_Services;
+using ToDoList_Utility.Validators;
+using ToDoList_ListAPI.Validators;
 
 namespace ToDoList_ListTest
 {
@@ -47,7 +49,7 @@ namespace ToDoList_ListTest
             _listTaskRepo = new ListTaskRepository(_dbContext);
             _DataFactory = new DataFactory(_dbContext);
             _mapper = new MapperConfiguration(cfg => cfg.AddProfile<MappingConfig>()).CreateMapper();
-            _listTaskService = new ListTaskService(_listTaskRepo, _mapper);
+            _listTaskService = new ListTaskService(_listTaskRepo, _mapper) ;
 
         }
         [Test]
@@ -91,7 +93,7 @@ namespace ToDoList_ListTest
             });
 
             // Assert
-            Assert.That(exception.Message, Does.Contain("can not be negative"));
+            Assert.That(exception.Message, Does.Contain("nonpositive"));
 
         }
 
@@ -188,7 +190,7 @@ namespace ToDoList_ListTest
             });
 
             // Assert
-            Assert.That(exception.Message, Does.Contain("Some fields"));
+            Assert.That(exception.Message, Does.Contain("Title can not be empty."));
         }
         [Test]
         public async Task CreateTestListTaskAsync_WithNullDTO()
