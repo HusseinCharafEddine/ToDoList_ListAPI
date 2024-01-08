@@ -90,7 +90,7 @@ namespace ToDoList_ListAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -127,7 +127,7 @@ namespace ToDoList_ListAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:int}", Name = "DeleteListTaskApi")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
 
         public async Task<ActionResult<APIResponse>> DeleteListTask(int id)
         {
@@ -145,7 +145,6 @@ namespace ToDoList_ListAPI.Controllers
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
-
             }
             catch (NotFoundException ex)
             {

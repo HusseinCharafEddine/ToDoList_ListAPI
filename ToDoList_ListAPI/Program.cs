@@ -107,7 +107,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<CustomResponseMiddleware>();
+//app.UseMiddleware<CustomRequestMiddleware>();
+//app.UseMiddleware<CustomResponseMiddleware>();
 app.UseCustomCaching();
 
 app.MapControllers();

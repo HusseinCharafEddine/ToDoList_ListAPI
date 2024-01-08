@@ -28,7 +28,7 @@ namespace ToDoList_ListAPI.Middleware
                 {
                     _cache[cacheKey] = (cachedResponse.Item1, DateTime.UtcNow.AddSeconds(30));
 
-                    context.Response.Headers.Add("X-Custom-Cache", "HIT");
+                    context.Response.Headers.Add("Hussein's-Custom-Cache", "HIT");
 
                     context.Response.Headers.Add("Content-Type", "application/json");
 

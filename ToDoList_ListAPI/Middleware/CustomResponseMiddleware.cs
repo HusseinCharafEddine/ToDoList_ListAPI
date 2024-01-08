@@ -46,6 +46,11 @@ namespace ToDoList_ListAPI.Middleware
 
         private string ModifyResponse(string originalResponse)
         {
+            if (string.IsNullOrWhiteSpace(originalResponse))
+            {
+                // Handle empty response
+                return originalResponse;
+            }
             try
             {
                 // Your custom logic to modify the response goes here
@@ -74,7 +79,8 @@ namespace ToDoList_ListAPI.Middleware
             catch (Exception ex)
             {
                 // Log the exception during modification
-                Console.WriteLine($"Error during response modification: {ex}");
+                //Console.WriteLine($"Error during response modification: {ex}");
+                //Console.WriteLine($"Original Response Content: {originalResponse}");
                 return originalResponse;
             }
         }
