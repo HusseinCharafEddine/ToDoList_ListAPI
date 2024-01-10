@@ -30,4 +30,8 @@
     <ProjectReference Include="..\ToDoList_Utility\ToDoList_Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
+
 </Project>

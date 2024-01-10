@@ -116,9 +116,12 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CustomRequestMiddleware>();
-app.MapControllers(); 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 app.UseMiddleware<CustomResponseMiddleware>();
 //app.UseCustomCaching();
+app.MapControllers();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 
 

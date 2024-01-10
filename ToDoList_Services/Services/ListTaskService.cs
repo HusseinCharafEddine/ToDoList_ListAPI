@@ -9,6 +9,7 @@ using ToDoList_Services.Services.IServices;
 using ToDoList_Utility.Validators;
 using FluentValidation;
 using ToDoList_ListAPI.Validators;
+using ToDoList_Utility.Models.Exceptions;
 
 namespace ToDoList_Services.Services
 {
@@ -32,15 +33,15 @@ namespace ToDoList_Services.Services
                 PageNumber = pageNumber,
                 PageSize = pageSize,
             };
-            PaginationValidator paginationValidator = new PaginationValidator();
+            //PaginationValidator paginationValidator = new PaginationValidator();
 
-            var validationResult = paginationValidator.Validate(page);
-            if (!validationResult.IsValid)
-            {
-                // Validation failed
-                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
-                throw new BadRequestException(string.Join(" ", errors));
-            }
+            //var validationResult = paginationValidator.Validate(page);
+            //if (!validationResult.IsValid)
+            //{
+            //    // Validation failed
+            //    var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+            //    throw new BadRequestException(string.Join(" ", errors));
+            //}
             IEnumerable<ListTask> listTaskList = await _listTaskRepo.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
 
             Func<ListTask, bool> predicate = u =>
@@ -55,13 +56,13 @@ namespace ToDoList_Services.Services
             if (id <= 0)
             {
                 string ex = "Id can not be nonpositive";
-                throw new BadRequestException(ex);
+                throw new BadRequestException(1);
             }
             var listTask = await _listTaskRepo.GetAsync(u => u.Id == id);
             if (listTask == null)
             {
                 string ex = "Task has not been found";
-                throw new NotFoundException(ex);
+                throw new NotFoundException(5);
             }
             return _mapper.Map<ListTaskDTO>(listTask);
         }
@@ -69,20 +70,20 @@ namespace ToDoList_Services.Services
         {
             if (createDTO == null)
             {
-                throw new BadRequestException("Some fields.");
+                throw new BadRequestException(2);
             }
-            ListTaskCreateValidator createValidator = new ListTaskCreateValidator();
-            var validationResult = createValidator.Validate(createDTO);
+            //ListTaskCreateValidator createValidator = new ListTaskCreateValidator();
+            //var validationResult = createValidator.Validate(createDTO);
 
-            if (!validationResult.IsValid)
-            {
-                // Validation failed
-                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
-                throw new BadRequestException(string.Join(" ", errors));
-            }
+            //if (!validationResult.IsValid)
+            //{
+            //    // Validation failed
+            //    var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+            //    throw new BadRequestException(string.Join(" ", errors));
+            //}
             if (await _listTaskRepo.GetAsync(u => u.Title.ToLower() == createDTO.Title.ToLower()) != null)
             {
-                throw new BadRequestException("Task with the title '" + createDTO.Title + "' already exists");
+                throw new BadRequestException(3);
 
             }
             
@@ -97,13 +98,13 @@ namespace ToDoList_Services.Services
             if (id <= 0)
             {
                 string ex = "Id can not be nonpositive";
-                throw new BadRequestException(ex);
+                throw new BadRequestException(1);
             }
             var listTask = await _listTaskRepo.GetAsync(u => u.Id == id);
             if ( listTask == null)
             {
                 string ex = "Task has not been found";
-                throw new NotFoundException(ex);
+                throw new NotFoundException(5);
             }
             await _listTaskRepo.RemoveAsync(listTask);
 
@@ -113,22 +114,27 @@ namespace ToDoList_Services.Services
             if (id <= 0)
             {
                 string ex = "Id can not be nonpositive";
-                throw new BadRequestException(ex);
+                throw new BadRequestException(1);
             }
             
             if (updateDTO == null || id != updateDTO.Id)
             {
-                string ex = "Task is null, or id toesnt match that of the task";
-                throw new BadRequestException(ex);
+                string ex = "Task is null";
+                throw new BadRequestException(2);
             }
-            ListTaskUpdateValidator updateValidator = new ListTaskUpdateValidator();
-            var validationResult = updateValidator.Validate(updateDTO);
-            if (!validationResult.IsValid)
+            if (id != updateDTO.Id)
             {
-                // Validation failed
-                var errors = validationResult.Errors.Select(error => error.ErrorMessage);
-                throw new BadRequestException(string.Join(" ", errors));
+                string ex = "The given Ids do not match";
+                throw new BadRequestException(4);
             }
+            //ListTaskUpdateValidator updateValidator = new ListTaskUpdateValidator();
+            //var validationResult = updateValidator.Validate(updateDTO);
+            //if (!validationResult.IsValid)
+            //{
+            //    // Validation failed
+            //    var errors = validationResult.Errors.Select(error => error.ErrorMessage);
+            //    throw new BadRequestException(string.Join(" ", errors));
+            //}
             ListTask model = _mapper.Map<ListTask>(updateDTO);
             await _listTaskRepo.UpdateAsync(model);
         }

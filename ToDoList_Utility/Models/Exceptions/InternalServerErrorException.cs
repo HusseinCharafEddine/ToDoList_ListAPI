@@ -1,4 +1,4 @@
-﻿namespace ToDoList_Utility.Models
+﻿namespace ToDoList_Utility.Models.Exceptions
 {
     public class InternalServerErrorException : Exception
     {

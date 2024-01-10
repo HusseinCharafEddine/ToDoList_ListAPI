@@ -31,30 +31,30 @@ namespace ToDoList_ListAPI.Controllers
             public async Task<ActionResult<APIResponse>> GetListTasks([FromQuery(Name = "filterCategory")] string? category, [FromQuery] string? search
                 , int pageSize = 0, int pageNumber = 1)
         {
-            try
-            {
+            //try
+            //{
                  var listTasks= await _listTaskService.GetAllAsync(category, search, pageSize, pageNumber);
                 _response.Result = _mapper.Map<List<ListTaskDTO>>(listTasks);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
 
-            }
-            catch (BadRequestException ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessages = new List<string> () { ex.ToString()} ;
-                return BadRequest(_response);
+            //}
+            //catch (BadRequestException ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.BadRequest;
+            //    _response.ErrorMessages = new List<string> () { ex.ToString()} ;
+            //    return BadRequest(_response);
 
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                if (_response.StatusCode == null)
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
+            //}
+            //catch (Exception ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    if (_response.StatusCode == null)
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
         }
 
         [HttpGet("{id:int}", Name = "GetListTask")]
@@ -64,29 +64,29 @@ namespace ToDoList_ListAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetListTask(int id)
         {
-            try
-            {
+            //try
+            //{
 
                 var listTask = await _listTaskService.GetAsync(id);
 
                 _response.Result = _mapper.Map<ListTaskDTO>(listTask);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
-            }
-            catch (BadRequestException ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //catch (BadRequestException ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.BadRequest;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
 
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
+            //}
+            //catch (Exception ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
         }
 
         [HttpPost]
@@ -99,27 +99,27 @@ namespace ToDoList_ListAPI.Controllers
 
         public async Task<ActionResult<APIResponse>> CreateListTask([FromBody] ListTaskCreateDTO createDTO)
         {
-            try
-            {
+            //try
+            //{
                 
                 ListTaskDTO listTask = await _listTaskService.CreateAsync(createDTO);
                 _response.Result = _mapper.Map<ListTaskDTO>(listTask);
                 _response.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetListTask", new { id = listTask.Id }, _response);
-            }
-            catch (BadRequestException ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
+            //}
+            //catch (BadRequestException ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.BadRequest;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //catch (Exception ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
         }
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -131,35 +131,35 @@ namespace ToDoList_ListAPI.Controllers
 
         public async Task<ActionResult<APIResponse>> DeleteListTask(int id)
         {
-            try
-            {
+            //try
+            //{
                 
                 await _listTaskService.RemoveAsync(id);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
 
-            }
-            catch (BadRequestException ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            catch (NotFoundException ex)
-            {
-                _response.IsSuccess = true;
-                _response.StatusCode = HttpStatusCode.NotFound;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //catch (BadRequestException ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.BadRequest;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //catch (NotFoundException ex)
+            //{
+            //    _response.IsSuccess = true;
+            //    _response.StatusCode = HttpStatusCode.NotFound;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
 
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
+            //}
+            //catch (Exception ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
         }
 
         [Authorize(Roles = "admin")]
@@ -170,20 +170,20 @@ namespace ToDoList_ListAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<APIResponse>> UpdateListTask(int id, [FromBody] ListTaskUpdateDTO updateDTO)
         {
-            try
-            {
+            //try
+            //{
                 await _listTaskService.UpdateAsync(id, updateDTO);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
+            //}
+            //catch (Exception ex)
+            //{
+                //_response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
         }
     }
 }
