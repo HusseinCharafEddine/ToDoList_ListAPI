@@ -5,7 +5,7 @@ using ToDoList_Utility.Models.DTO;
 
 namespace ToDoList_Utility.Validators
 {
-    public class ListTaskValidator : AbstractValidator<ListTask>
+    public class ListTaskValidator : AbstractValidator<ListTaskDTO>
     {
         public ListTaskValidator() {
             RuleFor(x => x.Id)

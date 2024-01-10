@@ -9,6 +9,7 @@ using ToDoList_Repository.Repository.IRepository;
 using Azure.Core;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 
 namespace ToDoList_Repository.Repository
 {
@@ -17,12 +18,13 @@ namespace ToDoList_Repository.Repository
     {
         private readonly ApplicationDbContext _db;
         private string secretKey;
-
-        public UserRepository(ApplicationDbContext db)
+        private readonly IConfiguration _configuration;
+        public UserRepository(ApplicationDbContext db, IConfiguration configuration)
         {
             _db = db;
-            secretKey = "Test 21323 tsadfas trasd fsadfaw teasf ";
-
+            _configuration = configuration;
+            secretKey = _configuration.GetSection("ApiSettings").GetSection("Secret").Value;
+            _configuration = configuration;
         }
         public bool IsUniqueUser(string username)
         {

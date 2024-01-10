@@ -18,6 +18,10 @@ using ToDoList_Repository.Repository;
 using ToDoList_Repository.Repository.IRepository;
 using ToDoList_Services.Services;
 using ToDoList_Services.Services.IServices;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using ToDoList_Utility.Models.DTO;
+using ToDoList_Utility.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +31,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
 builder.Services.Configure<KestrelServerOptions>(options =>
-{
+{       
     options.AllowSynchronousIO = true;
 });
 
@@ -37,6 +41,10 @@ builder.Services.AddAutoMapper(typeof(ToDoList_Services.MappingConfig));
 builder.Services.AddScoped<IListTaskRepository, ListTaskRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IListTaskService, ListTaskService>();
+builder.Services.AddScoped<IValidator<ListTaskDTO>, ListTaskValidator>();
+builder.Services.AddScoped<IValidator<ListTaskCreateDTO>, ListTaskCreateValidator>();
+builder.Services.AddScoped<IValidator<ListTaskUpdateDTO>, ListTaskUpdateValidator>();
+
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 
 builder.Services.AddAuthentication(x =>
@@ -84,7 +92,7 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 
 });
-
+builder.Services.AddFluentValidationAutoValidation();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -107,10 +115,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseMiddleware<CustomRequestMiddleware>();
-//app.UseMiddleware<CustomResponseMiddleware>();
-app.UseCustomCaching();
+app.UseMiddleware<CustomRequestMiddleware>();
+app.MapControllers(); 
+app.UseMiddleware<CustomResponseMiddleware>();
+//app.UseCustomCaching();
 
-app.MapControllers();
+
 
 app.Run();
