@@ -14,7 +14,6 @@ namespace ToDoList_Utility.Validators
                 .NotEmpty().WithMessage("Title can not be empty.");
             RuleFor(x => x.Category).MinimumLength(3).WithMessage("Category must be at least 3 characters long.");
 
-            // Custom rule for grouping errors
             RuleFor(x => x).Custom((dto, context) =>
             {
                 var errorMessages = new List<string>();

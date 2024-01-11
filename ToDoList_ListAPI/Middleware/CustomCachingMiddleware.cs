@@ -22,51 +22,63 @@ namespace ToDoList_ListAPI.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             string cacheKey = context.Request.Path;
-            if (_cache.TryGetValue(cacheKey, out var cachedResponse))
+            if (context.Request.Method == "GET")
             {
-                if (DateTime.UtcNow < cachedResponse.Item2)
+                if (_cache.TryGetValue(cacheKey, out var cachedResponse))
                 {
-                    _cache[cacheKey] = (cachedResponse.Item1, DateTime.UtcNow.AddSeconds(30));
+                    if (DateTime.UtcNow < cachedResponse.Item2)
+                    {
+                        _cache[cacheKey] = (cachedResponse.Item1, DateTime.UtcNow.AddSeconds(30));
 
-                    context.Response.Headers.Add("Hussein's-Custom-Cache", "HIT");
+                        context.Response.Headers.Add("Hussein's-Custom-Cache", "HIT");
 
-                    context.Response.Headers.Add("Content-Type", "application/json");
+                        context.Response.Headers.Add("Content-Type", "application/json");
 
-                    context.Response.StatusCode = 200;
+                        context.Response.StatusCode = 200;
 
-                    await context.Response.WriteAsync(Encoding.UTF8.GetString(cachedResponse.Item1));
+                        await context.Response.WriteAsync(Encoding.UTF8.GetString(cachedResponse.Item1));
 
-                    return;
-                }
-                else
-                {
-                    _cache.Remove(cacheKey);
+                        return;
+                    }
+                    else
+                    {
+                        _cache.Remove(cacheKey);
+                    }
                 }
             }
-
-            var originalBodyStream = context.Response.Body;
-            using (var newBodyStream = new MemoryStream())
+            if (context.Response.StatusCode == 200 && context.Request.Method == "GET")
             {
-                context.Response.Body = newBodyStream;
+                var originalBodyStream = context.Response.Body;
+                using (var newBodyStream = new MemoryStream())
+                {   
+                    context.Response.Body = newBodyStream;
 
-                await _next(context);
+                    await _next(context);
 
-                if (context.Response.StatusCode == 200)
-                {
-                    var responseBytes = newBodyStream.ToArray();
-                    _cache[cacheKey] = (responseBytes, DateTime.UtcNow.AddSeconds(30));
+                    try
+                    {
 
-                    newBodyStream.Position = 0;
+                        var responseBytes = newBodyStream.ToArray();
+                        _cache[cacheKey] = (responseBytes, DateTime.UtcNow.AddSeconds(30));
 
-                    // Copy the response headers to the original response
-                    //foreach (var header in context.Response.Headers)
-                    //{
-                    //    context.Response.Headers[header.Key] = header.Value.ToArray();
-                    //}
+                        newBodyStream.Position = 0;
 
-                    await newBodyStream.CopyToAsync(originalBodyStream);
+                        // Copy the response headers to the original response
+                        //foreach (var header in context.Response.Headers)
+                        //{
+                        //    context.Response.Headers[header.Key] = header.Value.ToArray();
+                        //}
+
+                        await newBodyStream.CopyToAsync(originalBodyStream);
+                    }
+                    catch(Exception ex)
+                    {
+                        throw;
+                    } 
                 }
             }
+            await _next(context);
+
         }
 
     }

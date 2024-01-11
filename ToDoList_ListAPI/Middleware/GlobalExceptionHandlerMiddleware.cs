@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ToDoList_Utility.Models.Exceptions;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace ToDoList_ListAPI.Middleware
 {
@@ -30,6 +31,14 @@ namespace ToDoList_ListAPI.Middleware
         {
             try
             {
+                if (context.Response.StatusCode == 401)
+                {
+                    throw new UnauthorizedException(7);
+                }
+                if (context.Response.StatusCode == 403)
+                {
+                    throw new UnauthorizedException(6);
+                }
                 await _next(context);
             }
             catch (BadRequestException ex)
@@ -50,18 +59,38 @@ namespace ToDoList_ListAPI.Middleware
                 //Add the custom error code (ex.ErrorCode) to the message
                 await context.Response.WriteAsync($"{{\"error\": \"{ex.ErrorCode} {errorMessage}\"}}");
             }
-            catch (ValidationException ex)
+            catch (FluentValidation.ValidationException ex)
             {
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                // Get the error message from ValidationResult
-                var errorMessage = ex.ValidationResult.ErrorMessage;
+                // Get the error messages from ValidationResult.Errors
+                var errorMessages = ex.Message;
 
                 // Create a response message
-                await context.Response.WriteAsync($"{{\"error\": \"{errorMessage}\"}}");
-            }
+                var responseMessage = new { error = "BadRequest", errors = errorMessages };
+                var jsonResponse = JsonSerializer.Serialize(responseMessage);
 
+                await context.Response.WriteAsync(jsonResponse);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                context.Response.Clear();
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                var errorMessage = GetErrorMessageForCode(6);
+                //Add the custom error code (ex.ErrorCode) to the message
+                await context.Response.WriteAsync($"{{\"error\": \"{6} {errorMessage}\"}}");
+            }
+            catch (UnauthenticatedException ex)
+            {
+                context.Response.Clear();
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                var errorMessage = GetErrorMessageForCode(ex.ErrorCode);
+                //Add the custom error code (ex.ErrorCode) to the message
+                await context.Response.WriteAsync($"{{\"error\": \"{ex.ErrorCode} {errorMessage}\"}}");
+            }
             catch (Exception ex)
             {
                 context.Response.Clear();
@@ -71,7 +100,7 @@ namespace ToDoList_ListAPI.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 await context.Response.WriteAsync($"{{\"error\": \"InternalServerError: {ex}\"}}");
             }
-        }
+            }
 
         private string GetErrorMessageForCode(int errorCode)
         {

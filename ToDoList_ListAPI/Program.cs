@@ -113,15 +113,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<CustomRequestMiddleware>();
+app.UseCustomCaching();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.UseMiddleware<CustomResponseMiddleware>();
-//app.UseCustomCaching();
+app.UseAuthentication();
+app.UseAuthorization();
+
+//app.UseMiddleware<CustomRequestMiddleware>();
+//app.UseMiddleware<CustomResponseMiddleware>();
 app.MapControllers();
-app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 
 

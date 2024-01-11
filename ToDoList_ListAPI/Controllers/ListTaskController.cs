@@ -185,5 +185,37 @@ namespace ToDoList_ListAPI.Controllers
             //}
             //return _response;
         }
+        HttpPost]
+        //[Authorize(Roles = "admin")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<ActionResult<APIResponse>> AddLineSaveToPDF([FromBody] ListTaskCreateDTO createDTO)
+        {
+            //try
+            //{
+
+            ListTaskDTO listTask = await _listTaskService.CreateAsyncLineToPDF(createDTO);
+            _response.Result = _mapper.Map<ListTaskDTO>(listTask);
+            _response.StatusCode = HttpStatusCode.Created;
+            return CreatedAtRoute("GetListTask", new { id = listTask.Id }, _response);
+            //}
+            //catch (BadRequestException ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.BadRequest;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //catch (Exception ex)
+            //{
+            //    _response.IsSuccess = false;
+            //    _response.StatusCode = HttpStatusCode.InternalServerError;
+            //    _response.ErrorMessages = new List<string>() { ex.ToString() };
+            //}
+            //return _response;
+        }
     }
 }
